@@ -50,6 +50,9 @@ pub struct Calibrate {
     #[arg(long, short = 'd', help = "Decorrelate color channels")]
     decorrelate: bool,
 
+    #[arg(long, short = 'e', help = "Desmear paramter (t_transfer / t_exposure)")]
+    desmear_epsilon: Option<f32>,
+
     #[arg(long, short = 'P', help = "Calibration profile", num_args = 1..)]
     profile: Option<Vec<String>>,
 
@@ -175,6 +178,7 @@ impl RunnableSubcommand for Calibrate {
                 color_noise_reduction_amount: self.color_noise_reduction_amount.unwrap_or(0),
                 hot_pixel_detection_threshold: self.hpc_threshold.unwrap_or(0.0),
                 hot_pixel_window_size: self.hpc_window.unwrap_or(3),
+                desmear_epsilon: self.desmear_epsilon.unwrap_or(0.0),
                 filename_suffix: String::from(constants::OUTPUT_FILENAME_APPEND),
                 decorrelate_color: self.decorrelate,
                 mission: None,

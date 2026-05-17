@@ -255,6 +255,10 @@ impl MarsImage {
         self.image.hot_pixel_correction(window_size, threshold);
     }
 
+    pub fn desmear_ccd_image(&mut self, epsilon: f32) {
+        self.image.desmear_ccd_image(epsilon);
+    }
+
     pub fn to_mono(&mut self) {
         self.image.to_mono();
     }

@@ -95,6 +95,11 @@ impl Calibration for M20MastcamZ {
             255.0
         };
 
+        if cal_context.desmear_epsilon > 0.0 {
+            info!("Applying CCD frame-transfer smear correction...");
+            raw.desmear_ccd_image(cal_context.desmear_epsilon);
+        } // else, don't bother
+
         // Looks like 'ECM' in the name seems to indicate that it still have the bayer pattern
         // Update: Not always. Added a check to determine whether or not is is grayscale.
         // It's not perfect so please validate results. Gonna keep the 'ECM' check for now.
