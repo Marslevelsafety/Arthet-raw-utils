@@ -95,10 +95,12 @@ impl Calibration for M20MastcamZ {
             255.0
         };
 
-        if cal_context.desmear_epsilon > 0.0 {
-            info!("Applying CCD frame-transfer smear correction...");
-            raw.desmear_ccd_image(cal_context.desmear_epsilon);
-        } // else, don't bother
+        if raw.image.width == 1648 {
+            info!("Applying Dark Signal Correction. Reference column is 15");
+            raw.dark_signal_correction_with_ref_cols(15);
+        } else {
+            info!("Reference columns may have been cropped due to subframing. Skipping dark signal correction.");
+        }
 
         // Looks like 'ECM' in the name seems to indicate that it still have the bayer pattern
         // Update: Not always. Added a check to determine whether or not is is grayscale.
@@ -107,6 +109,11 @@ impl Calibration for M20MastcamZ {
             info!("Image appears to be grayscale, applying debayering...");
             raw.debayer_with_method(cal_context.debayer_method);
         }
+
+        if (cal_context.desmear_epsilon - 0.0).abs() > f32::EPSILON {
+            info!("Applying CCD frame-transfer smear correction...");
+            raw.desmear_ccd_image(cal_context.desmear_epsilon);
+        } // else, don't bother
 
         // I'm not wild about this
         let focal_length: Result<f32> = match focal_length_from_file_name(input_file) {

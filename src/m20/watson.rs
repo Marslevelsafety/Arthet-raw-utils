@@ -38,10 +38,22 @@ impl Calibration for M20Watson {
             255.0
         };
 
+        if raw.image.width == 1648 {
+            info!("Applying Dark Signal Correction. Reference column is 15");
+            raw.dark_signal_correction_with_ref_cols(15);
+        } else {
+            info!("Reference columns may have been cropped due to subframing. Skipping dark signal correction.");
+        }
+
         if input_file.contains("ECM") && raw.image.is_grayscale() {
             vprintln!("Image appears to be grayscale, applying debayering...");
             raw.debayer_with_method(cal_context.debayer_method);
         }
+
+        if (cal_context.desmear_epsilon - 0.0).abs() > f32::EPSILON {
+            info!("Applying CCD frame-transfer smear correction...");
+            raw.desmear_ccd_image(cal_context.desmear_epsilon);
+        } // else, don't bother
 
         vprintln!("Flatfielding...");
         let mut flat = flatfield::load_flat(enums::Instrument::M20Watson).unwrap();
